@@ -1,0 +1,26 @@
+{
+    "builders": [
+        {
+            "type": "docker",
+            "image": "gentoo/stage3-amd64-hardened",
+            "volumes": {
+                "<PATH>/bootstrap/": "/tmp/data",
+                "<PATH>/shared/portage": "/usr/portage"
+            },
+            "commit": "true"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "<PATH>/bootstrap/packer.sh"
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "docker-tag",
+            "repository": "dr.rbkmoney.com/rbkmoney/bootstrap"
+        }
+    ]
+}
+

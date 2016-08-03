@@ -2,10 +2,11 @@
     "builders": [
         {
             "type": "docker",
-            "image": "gentoo/stage3-amd64-hardened",
+            "image": "busybox",
+	    "run_command": ["-d", "-i", "-t", "{{.Image}}", "/bin/sh"],
             "volumes": {
                 "<PATH>/bootstrap/": "/tmp/data",
-                "<PATH>/shared/portage": "/usr/portage"
+                "<SHARED>/portage": "/usr/portage"
             },
             "commit": "true"
         }

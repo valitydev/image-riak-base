@@ -1,8 +1,72 @@
-#! /bin/bash
+#!/bin/sh
+# usage: stage-arch arch-name suffix
 
+VerifyHashOfStage3() {
+    # First param is package tarball, 2nd is the *.DIGEST file
+    test_sum=$(awk -v myvar="$1" '$2==myvar {for(i=1; i<=1; i++) { print $1; exit}}' "${2}")
+    calculated_sum=$(sha512sum "${1}" | awk '{print $1}' -)
+    if [[ "$test_sum" == "$calculated_sum" ]]; then
+	return 0
+    else
+	return 1
+    fi
+}
+
+suffix="-hardened+nomultilib" # e.g. -hardened
+arch="amd64"
+dist="http://gentoo.bakka.su/releases/${arch}/autobuilds/"
+
+echo "-I- dist: ${dist}"
+echo "-I- arch: ${arch} suffix: ${suffix}"
+
+echo '-=- Preparing the working directory'
+mkdir newWorldOrder; cd newWorldOrder || exit 1
+cp /bin/busybox . || exit 1
+echo '-ok'
+
+echo "-=- Downloading ${dist}/latest-stage3-${arch}${suffix}.txt"
+wget -q "${dist}/latest-stage3-${arch}${suffix}.txt" || exit 1
+echo '-ok'
+stage3path="$(cat latest-stage3-${arch}${suffix}.txt | tail -n 1 | cut -f 1 -d ' ')"
+stage3="$(basename ${stage3path})"
+echo "-I- latest stage3: ${stage3path}"
+
+echo "-=- Downloading ${dist}/${stage3path} and its DIGESTS"
+wget -q -c "${dist}/${stage3path}" "${dist}/${stage3path}.DIGESTS" || exit 1
+echo "-ok"
+if VerifyHashOfStage3 "${stage3}" "${stage3}.DIGESTS"; then
+    echo "-ok DIGEST verification passed, sha512 hashes match."
+else
+    echo "-!! DIGEST verification failed!"
+    exit 1
+fi
+echo "-=- Unpacking ${stage3}"
+bunzip2 -c "${stage3}" | tar --exclude "./etc/hosts" --exclude "./sys/*" -xf - || exit 1
+echo "-ok"
+echo "-=- Removing ${stage3}"
+/newWorldOrder/busybox rm -f "${stage3}" || exit 1
+echo "-ok"
+
+echo "-=- Installing unpacked contents"
+ls /usr -la
+/newWorldOrder/busybox rm -rf /lib* /usr/sbin /var /bin /sbin /opt /mnt /media /root /home /run || exit 1
+/newWorldOrder/busybox cp -fRap lib* bin boot home media mnt opt root run sbin tmp usr var / || exit 1
+/newWorldOrder/busybox cp -fRap etc/* /etc/ || exit 1
+echo "-ok"
+
+echo "-=- Cleaning up"
+cd /
+/newWorldOrder/busybox rm -rf /newWorldOrder /build.sh /linuxrc || exit 1
+echo "-ok"
+
+echo "-I- Bootstrapped ${stage3path} into /"
+echo "-I- Here begins the New World Order"
+
+export EMERGE="emerge -q"
+
+/bin/bash <<EOL
 source /lib/gentoo/functions.sh
 
-EMERGE="emerge -q"
 
 ebegin "Setting locales to generate"
 cat <<EOF> /etc/locale.gen
@@ -89,3 +153,4 @@ if [ ! -d /var/salt ]; then
     mkdir -p /var/salt
     eend $? || exit $?
 fi
+EOL

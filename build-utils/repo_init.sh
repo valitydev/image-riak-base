@@ -5,7 +5,7 @@ d_repo="$1"
 remote_uri="$2"
 
 if [[ "${remote_uri}" == "git+ssh"* ]]; then
-    export GIT_SSH_COMMAND="$(which ssh) -o StrictHostKeyChecking=no -o User=git $([ -n "${SSH_PRIVKEY}" ] && echo -i "${SSH_PRIVKEY}")"
+    export GIT_SSH_COMMAND="$(which ssh) -o StrictHostKeyChecking=no -o User=git $([ -n "${SSH_PRIVKEY}" ] && echo -o IdentityFile="${SSH_PRIVKEY}")"
     einfo "GIT_SSH_COMMAND: ${GIT_SSH_COMMAND}"
 fi
 if [[ -d "${d_repo}/.git" ]]; then

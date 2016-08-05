@@ -1,10 +1,11 @@
 REPO_INIT := build-utils/repo_init.sh
 IMAGES_SHARED := $(shell echo "${HOME}")/.cache/rbkmoney/images/shared
 GITHUB_PRIVKEY ?=
+GITHUB_PRIVKEY := $(shell echo $(GITHUB_PRIVKEY) | sed -e 's|%|%%|g')
 GITHUB_URI_PREFIX := git+ssh://github.com
 
 BAKKA_SU_PRIVKEY ?=
-BAKKA_SU_PRIVKEY := $(shell echo $(GITHUB_PRIVKEY) | sed -e 's|%|%%|g')
+BAKKA_SU_PRIVKEY := $(shell echo $(BAKKA_SU_PRIVKEY) | sed -e 's|%|%%|g')
 BAKKA_SU_URI_PREFIX := $(if $(BAKKA_SU_PRIVKEY),git+ssh,git)://git.bakka.su
 
 # portage

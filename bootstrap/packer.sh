@@ -48,7 +48,6 @@ echo "-=- Removing ${stage3}"
 echo "-ok"
 
 echo "-=- Installing unpacked contents"
-ls /usr -la
 /newWorldOrder/busybox rm -rf /lib* /usr/sbin /var /bin /sbin /opt /mnt /media /root /home /run || exit 1
 /newWorldOrder/busybox cp -fRap lib* bin boot home media mnt opt root run sbin tmp usr var / || exit 1
 /newWorldOrder/busybox cp -fRap etc/* /etc/ || exit 1

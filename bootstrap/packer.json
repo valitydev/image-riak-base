@@ -11,7 +11,7 @@
             "image": "busybox",
 	    "run_command": ["-d", "-i", "-t", "{{.Image}}", "/bin/sh"],
             "volumes": {
-                "{{user `base-path`}}/base": "/tmp/data:ro",
+                "{{user `base-path`}}/bootstrap": "/tmp/data:ro",
                 "{{user `shared-path`}}/portage": "/usr/portage:ro"
             },
             "commit": "true"

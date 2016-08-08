@@ -14,7 +14,7 @@ bootstrap: bootstrap/.state
 
 bootstrap/.state: $(PACKER) $(IMAGES_SHARED)/portage/.git bootstrap/packer.json bootstrap/packer.sh bootstrap/portage.make.conf
 	$(PACKER) build -var 'base-path=$(BASE_DIR)' \
-	-var 'image-tag=$(shell date --rfc-3339=date)' packer.json \
+	-var 'image-tag=$(shell date --rfc-3339=date)' bootstrap/packer.json \
 	&& touch $@
 
 push:

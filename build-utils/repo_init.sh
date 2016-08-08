@@ -10,7 +10,7 @@ if [[ "${remote_uri}" == "git+ssh"* ]]; then
 fi
 if [[ -d "${d_repo}/.git" ]]; then
     einfo "Syncing repository ${d_repo}"
-    git -C "${d_repo}" pull --depth 1 || exit $?
+    git -C "${d_repo}" pull || exit $?
 else
     einfo "Initialising repository ${d_repo}"
     eindent

@@ -1,0 +1,35 @@
+{
+    "variables": {
+	"docker-registry": "dr.rbkmoney.com",
+	"base-path": null,
+	"shared-path": "{{env `HOME`}}/.cache/rbkmoney/images/shared/",
+	"image-tag": null
+    },
+    "builders": [
+        {
+            "type": "docker",
+            "image": "busybox",
+	    "run_command": ["-d", "-i", "-t", "{{.Image}}", "/bin/sh"],
+            "volumes": {
+                "{{user `base-path`}}/base": "/tmp/data:ro",
+                "{{user `shared-path`}}/portage": "/usr/portage:ro",
+                "{{user `shared-path`}}/overlays": "/var/lib/layman:ro"
+            },
+            "commit": "true"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "{{user `base-path`}}/bootstrap/packer.sh"
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "docker-tag",
+            "repository": "{{user `docker-registry`}}/rbkmoney/bootstrap",
+	    "tag": "{{user `image-tag`}}"
+        }
+    ]
+}
+

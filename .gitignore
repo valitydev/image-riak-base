@@ -1,11 +1,5 @@
-.vagrant
-packer.json
 .squashed
 .state
-shared/portage/**
-shared/baka-bakka/**
-shared/rbkmoney/**
-shared/salt/**
 *~
 *.sublime-workspace
 .DS_Store

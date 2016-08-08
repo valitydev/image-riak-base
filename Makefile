@@ -13,11 +13,9 @@ PULL := true
 bootstrap: bootstrap/.state
 
 bootstrap/.state: $(PACKER) $(IMAGES_SHARED)/portage/.git bootstrap/packer.json bootstrap/packer.sh bootstrap/portage.make.conf
-	cd $(BASE_DIR)/$(dir $@) && $(PACKER) build packer.json && touch .state
-
-bootstrap/packer.json: bootstrap/packer.json.template
-	sed -e 's:<PATH>:$(BASE_DIR):g' -e 's:<SHARED>:$(IMAGES_SHARED):g' $< > $@
+	$(PACKER) build -var 'base-path=$(BASE_DIR)' \
+	-var 'image-tag=$(shell date --rfc-3339=date)' packer.json \
+	&& touch $@
 
 push:
-	$(DOCKER) tag "$(DREPO)/bootstrap" "$(DREPO)/bootstrap:$(shell date --rfc-3339=date)"
 	$(DOCKER) push "$(DREPO)/bootstrap:$(shell date --rfc-3339=date)"

@@ -12,8 +12,7 @@
 	    "run_command": ["-d", "-i", "-t", "{{.Image}}", "/bin/sh"],
             "volumes": {
                 "{{user `base-path`}}/base": "/tmp/data:ro",
-                "{{user `shared-path`}}/portage": "/usr/portage:ro",
-                "{{user `shared-path`}}/overlays": "/var/lib/layman:ro"
+                "{{user `shared-path`}}/portage": "/usr/portage:ro"
             },
             "commit": "true"
         }

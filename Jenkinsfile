@@ -28,6 +28,13 @@ def images_pipeline(String repoName, String agentLabel, Closure body) {
 }
 
 images_pipeline("images", 'docker-host') {
+  runStage('submodules') {
+    sh 'make submodules'
+  }
+
+  runStage('stage3 download') {
+    sh 'make .latest-stage3'
+  }
   withCredentials(
     [[$class: 'FileBinding', credentialsId: 'bakka-su-rbkmoney-all', variable: 'BAKKA_SU_PRIVKEY']]) {
     runStage('bootstrap image build') {

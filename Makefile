@@ -13,7 +13,7 @@ SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
 
 $(SUBTARGETS):
 	export SSH_PRIVKEY=$(shell echo $(GITHUB_PRIVKEY) | sed -e 's|%|%%|g'); \
-	GIT_SSH_COMMAND="$(shell which ssh) -o StrictHostKeyChecking=no -o User=git $(shell [ -n "${SSH_PRIVKEY}" ] && echo -o IdentityFile="${SSH_PRIVKEY}")" \
+	GIT_SSH_COMMAND="$(shell which ssh) -o StrictHostKeyChecking=no -o User=git `[ -n "${SSH_PRIVKEY}" ] && echo -o IdentityFile="${SSH_PRIVKEY}"`" \
 	git submodule update --init $(subst /,,$(basename $@))
 	touch $@
 

@@ -12,8 +12,8 @@ SUBMODULES = build-utils
 SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
 
 $(SUBTARGETS): %/.git: %
-    git submodule update --init $<
-    touch $@
+	git submodule update --init $<
+	touch $@
 
 submodules: $(SUBTARGETS)
 

@@ -13,7 +13,7 @@ SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
 
 $(SUBTARGETS):
 	GIT_SSH_COMMAND="$(shell which ssh) -o StrictHostKeyChecking=no -o User=git $(shell [ -n "${GITHUB_PRIVKEY}" ] && echo -o IdentityFile="${GITHUB_PRIVKEY}")" \
-	git submodule update --init $(basename $@)
+	git submodule update --init $(subst /,,$(basename $@))
 	touch $@
 
 submodules: $(SUBTARGETS)

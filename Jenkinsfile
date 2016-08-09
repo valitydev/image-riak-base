@@ -5,7 +5,7 @@
 // GitHub repo name
 // Jenkins agent label
 // Tracing artifacts to be stored alongside build logs
-def images_pipeline(String repoName, String agentLabel, String artiFacts, Closure body) {
+def images_pipeline(String repoName, String agentLabel, Closure body) {
   node(agentLabel) {
     try {
       env.REPO_NAME = repoName
@@ -27,8 +27,9 @@ def images_pipeline(String repoName, String agentLabel, String artiFacts, Closur
   }
 }
 
-images_pipeline("images", 'docker-host', "_build/") {
-  withCredentials([[$class: 'FileBinding', credentialsId: 'bakka-su-rbkmoney-all', variable: 'BAKKA_SU_PRIVKEY']]) {
+images_pipeline("images", 'docker-host') {
+  withCredentials(
+    [[$class: 'FileBinding', credentialsId: 'bakka-su-rbkmoney-all', variable: 'BAKKA_SU_PRIVKEY']]) {
     runStage('bootstrap image build') {
       sh 'make bootstrap'
     }

@@ -1,26 +1,27 @@
 {
     "variables": {
 	"docker-registry": "dr.rbkmoney.com",
-	"base-path": null,
-	"shared-path": "{{env `HOME`}}/.cache/rbkmoney/images/shared/",
+	"files-dir": "{{env `PWD`}}/files/",
+	"shared-dir": "{{env `HOME`}}/.cache/rbkmoney/images/shared/",
 	"image-tag": null
     },
     "builders": [
         {
             "type": "docker",
-            "image": "busybox",
-	    "run_command": ["-d", "-i", "-t", "{{.Image}}", "/bin/sh"],
+            "image": "{{user `docker-registry`}}/rbkmoney/stage3-amd64-hardened-nomultilib",
+	    "run_command": ["-d", "-i", "-t", "{{.Image}}", "/bin/bash"],
             "volumes": {
-                "{{user `base-path`}}/bootstrap": "/tmp/data:ro",
-                "{{user `shared-path`}}/portage": "/usr/portage:ro"
+                "{{user `files-dir`}}": "/tmp/data:ro",
+                "{{user `shared-dir`}}/portage": "/usr/portage:ro"
             },
+	    "pull": "false",
             "commit": "true"
         }
     ],
     "provisioners": [
         {
             "type": "shell",
-            "script": "{{user `base-path`}}/bootstrap/packer.sh"
+            "script": "{{user `files-dir`}}/packer.sh"
         }
     ],
     "post-processors": [

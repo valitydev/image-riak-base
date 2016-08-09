@@ -1,5 +1,7 @@
-.squashed
+.latest-stage3
 .state
+.squashed
+stage3-*
 *~
 *.sublime-workspace
 .DS_Store

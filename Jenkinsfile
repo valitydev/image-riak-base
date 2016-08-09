@@ -28,10 +28,12 @@ def images_pipeline(String repoName, String agentLabel, Closure body) {
 }
 
 images_pipeline("images", 'docker-host') {
-  runStage('submodules') {
-    sh 'make submodules'
+  withCredentials(
+    [[$class: 'FileBinding', credentialsId: 'github-rbkmoney-ci-bot-file', variable: 'GITHUB_PRIVKEY']]) {
+    runStage('submodules') {
+      sh 'make submodules'
+    }
   }
-
   runStage('stage3 download') {
     sh 'make .latest-stage3'
   }

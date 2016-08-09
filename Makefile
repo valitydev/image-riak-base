@@ -11,8 +11,8 @@ PACKER := $(shell which packer 2>/dev/null)
 SUBMODULES = build-utils
 SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
 
-$(SUBTARGETS): %/.git: %
-	git submodule update --init $<
+$(SUBTARGETS):
+	git submodule update --init $(basename $@)
 	touch $@
 
 submodules: $(SUBTARGETS)

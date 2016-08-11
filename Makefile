@@ -1,10 +1,10 @@
 SERVICE_NAME := bootstrap
 UTILS_PATH := build-utils
 
-.PHONY: $(SERVICE_NAME) push
+.PHONY: $(SERVICE_NAME) push submodules repos
 $(SERVICE_NAME): .state
 
--include build-utils/make_lib/utils_repo.mk
+-include $(UTILS_PATH)/make_lib/utils_repo.mk
 PACKER := $(shell which packer 2>/dev/null)
 SUBMODULES = build-utils
 SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))

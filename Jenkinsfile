@@ -2,6 +2,7 @@
 // -*- mode: groovy -*-
 
 build("images", 'docker-host') {
+  checkoutRepo()
   withCredentials(
     [[$class: 'FileBinding', credentialsId: 'github-rbkmoney-ci-bot-file', variable: 'GITHUB_PRIVKEY'],
      [$class: 'FileBinding', credentialsId: 'bakka-su-rbkmoney-all', variable: 'BAKKA_SU_PRIVKEY']]) {

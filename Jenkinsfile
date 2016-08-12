@@ -1,7 +1,7 @@
 #!groovy
 // -*- mode: groovy -*-
 
-build("images", 'docker-host') {
+build("image-bootstrap", 'docker-host') {
   checkoutRepo()
   withCredentials(
     [[$class: 'FileBinding', credentialsId: 'github-rbkmoney-ci-bot-file', variable: 'GITHUB_PRIVKEY'],

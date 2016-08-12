@@ -1,0 +1,20 @@
+#+TITLE: Bootstrap docker image
+#+AUTHOR: Grigory Antsiferov
+#+EMAIL: azr@bakka.su
+
+В этом репозитории находятся исходные коды для создания docker образа =rbkmoney/bootstrap=, родительского образа для =rbkmoney/base=, следовательно и для всей иерархии образов =rbkmoney/=.
+
+* Необходимые утилиты
+** =git=
+** =GNUmake=
+** =coreutils=, =bash=, =sed=, =awk=, =wget=, вот это все.
+** =Docker= и =Packer=
+* Как собрать
+Если у вас нашлось в =PATH= все вышеперечисленное, то сборка будет проста.
+#+BEGIN_SRC shell-script
+GITHUB_PRIVKEY="/path/to/file" \
+BAKKA_SU_PRIVKEY="/path/to/file" \
+	make -j4 bootstrap # or just make, if you are feeling lucky.
+#+END_SRC
+* Notes
+** TODO Скачивать в stage3 в ~/.cache/rbkmoney/images/ вместо текущей папки.

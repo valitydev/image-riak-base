@@ -37,7 +37,7 @@ repos: $(REPOS_TARGET)
 
 
 test:
-	$(DOCKER) run -ti "$(REGISTRY)/$(ORG_NAME)/$(SERVICE_NAME):$(shell cat .state)" \
+	$(DOCKER) run  "$(REGISTRY)/$(ORG_NAME)/$(SERVICE_NAME):$(shell cat .state)" \
 	bash -c "salt --versions-report; ssh -V"
 
 push:

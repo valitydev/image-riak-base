@@ -1,8 +1,7 @@
-#! /bin/bash
-
+#!/bin/bash
 source /lib/gentoo/functions.sh
 
-EMERGE="emerge -q"
+export EMERGE="emerge -q"
 
 ebegin "Setting locales to generate"
 cat <<EOF> /etc/locale.gen

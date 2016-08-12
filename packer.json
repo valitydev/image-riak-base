@@ -1,0 +1,34 @@
+{
+    "variables": {
+	"docker-registry": "dr.rbkmoney.com",
+	"files-dir": "{{env `PWD`}}/files/",
+	"shared-dir": "{{env `HOME`}}/.cache/rbkmoney/images/shared/",
+	"image-tag": null
+    },
+    "builders": [
+	{
+	    "type": "docker",
+	    "image": "{{user `docker-registry`}}/rbkmoney/stage3-amd64-hardened-nomultilib",
+	    "run_command": ["-d", "-i", "-t", "{{.Image}}", "/bin/bash"],
+	    "volumes": {
+		"{{user `files-dir`}}": "/tmp/data:ro",
+		"{{user `shared-dir`}}/portage": "/usr/portage:ro"
+	    },
+	    "pull": "false",
+	    "commit": "true"
+	}
+    ],
+    "provisioners": [
+	{
+	    "type": "shell",
+	    "script": "{{user `files-dir`}}/packer.sh"
+	}
+    ],
+    "post-processors": [
+	{
+	    "type": "docker-tag",
+	    "repository": "{{user `docker-registry`}}/rbkmoney/bootstrap",
+	    "tag": "{{user `image-tag`}}"
+	}
+    ]
+}

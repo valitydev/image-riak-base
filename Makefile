@@ -1,48 +1,43 @@
-PACKER := $(shell which packer 2>/dev/null || which ./packer)
-PCONF  := packer.json
-PBUILD := $(PACKER) build $(PCONF)
-BASE_DIR := $(shell pwd)
+SERVICE_NAME := bootstrap
+UTILS_PATH := build-utils
 
-DOCKER := $(shell which docker 2>/dev/null)
-DREPO  := dr.rbkmoney.com/rbkmoney
-CONTAINER ?=
+.PHONY: $(SERVICE_NAME) push submodules repos
+$(SERVICE_NAME): .state
 
-BAKKA_SU_PRIVKEY ?=
-BAKKA_SU_URI_PREFIX := $(if $(BAKKA_SU_PRIVKEY),git+ssh,git)://git.bakka.su
-BAKKA_SU_SSH_COMMAND := $(shell which ssh) -o User=git -o StrictHostKeyChecking=no $(if $(BAKKA_SU_PRIVKEY),-i $(BAKKA_SU_PRIVKEY),)
+-include $(UTILS_PATH)/make_lib/utils_repo.mk
+PACKER := $(shell which packer 2>/dev/null)
+SUBMODULES = build-utils
+SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
+REPOS = portage
+REPOS_TARGET = $(patsubst %,$(IMAGES_SHARED)/%/.git,$(REPOS))
 
+$(SUBTARGETS):
+	$(eval SSH_PRIVKEY := $(shell echo $(GITHUB_PRIVKEY) | sed -e 's|%|%%|g'))
+	GIT_SSH_COMMAND="$(shell which ssh) -o StrictHostKeyChecking=no -o User=git `[ -n '$(SSH_PRIVKEY)' ] && echo -o IdentityFile='$(SSH_PRIVKEY)'`" \
+	git submodule update --init $(subst /,,$(basename $@))
+	touch $@
 
-.PHONY: bootstrap push 
+submodules: $(SUBTARGETS)
 
-# portage
-shared/portage/.git/config:
-	rm -rf "$(BASE_DIR)/shared/portage" \
-	&& GIT_SSH_COMMAND="$(BAKKA_SU_SSH_COMMAND)" git clone \
-	"$(BAKKA_SU_URI_PREFIX)/gentoo-mirror" --depth 1 \
-	"$(BASE_DIR)/shared/portage"
+repos: $(REPOS_TARGET)
 
-# overlays
-shared/baka-bakka/.git/config:
-	rm -rf "$(BASE_DIR)/shared/baka-bakka" \
-	&& GIT_SSH_COMMAND="$(BAKKA_SU_SSH_COMMAND)" git clone \
-	"$(BAKKA_SU_URI_PREFIX)/baka-bakka" --depth 1 \
-	"$(BASE_DIR)/shared/baka-bakka"
+.latest-stage3: build-utils/sh/getstage3.sh .git
+	UTILS_PATH="$(UTILS_PATH)" build-utils/sh/getstage3.sh amd64 -hardened+nomultilib | tail -n 1 > .latest-stage3
 
-# bootstrap
-bootstrap: bootstrap/.state
+.state: .latest-stage3 $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf
+	$(eval TAG := $(shell date +%s)-$(shell git rev-parse HEAD))
+	$(DOCKER) import `cat .latest-stage3` "$(REGISTRY)/$(ORG_NAME)/stage3-amd64-hardened-nomultilib"
+	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
+	printf "FROM $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG)\n \
+	LABEL com.rbkmoney.stage3-used=`cat .latest-stage3` \
+	build_image_tag=null base_image_tag=null \
+	branch=`git name-rev --name-only HEAD` commit=`git rev-parse HEAD`" \
+	| docker build -t $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG) -
+	echo $(TAG) > $@
 
-bootstrap/.state: $(PACKER) shared/portage/.git/config bootstrap/packer.json bootstrap/packer.sh bootstrap/portage.make.conf
-	cd $(BASE_DIR)/$(dir $@) && $(PBUILD) && touch .state
+test:
+	$(DOCKER) run  "$(REGISTRY)/$(ORG_NAME)/$(SERVICE_NAME):$(shell cat .state)" \
+	bash -c "salt --versions-report; ssh -V"
 
-bootstrap/packer.json: bootstrap/packer.json.template
-	sed 's:<PATH>:$(BASE_DIR):g' $< > $@
-
-
-# docker push
-# make sure to run `docker login` before
-push: $(CONTAINER)/.state $(DOCKER) ~/.docker/config.json
-	$(DOCKER) push $(DREPO)/$(CONTAINER)
-
-
-~/.docker/config.json:
-	test -f ~/.docker/config.json || (echo "Please run: docker login" ; exit 1)
+push:
+	$(DOCKER) push "$(REGISTRY)/$(ORG_NAME)/$(SERVICE_NAME):$(shell cat .state)"

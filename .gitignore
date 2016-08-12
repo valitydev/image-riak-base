@@ -1,11 +1,8 @@
-.vagrant
-packer.json
-.squashed
+.latest-stage3
 .state
-shared/portage/**
-shared/baka-bakka/**
-shared/rbkmoney/**
-shared/salt/**
+.squashed
+stage3-*
+latest-stage3-*
 *~
 *.sublime-workspace
 .DS_Store

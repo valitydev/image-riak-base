@@ -35,5 +35,10 @@ repos: $(REPOS_TARGET)
 	| docker build -t $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG) -
 	echo $(TAG) > $@
 
+
+test:
+	$(DOCKER) run -ti "$(REGISTRY)/$(ORG_NAME)/$(SERVICE_NAME):$(shell cat .state)" \
+	bash -c "salt --versions-report; ssh --version"
+
 push:
-	$(DOCKER) push "$(REGISTRY)/$(SERVICE_NAME):$(shell cat .state)"
+	$(DOCKER) push "$(REGISTRY)/$(ORG_NAME)/$(SERVICE_NAME):$(shell cat .state)"

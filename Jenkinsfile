@@ -19,6 +19,9 @@ build("images", 'docker-host') {
   runStage('bootstrap image build') {
     sh 'make bootstrap'
   }
+  runStage('smoke test') {
+    sh 'make test'
+  }
   if (env.BRANCH_NAME == 'master') {
     runStage('docker image push') {
       sh 'make push'

@@ -22,18 +22,18 @@ submodules: $(SUBTARGETS)
 repos: $(REPOS_TARGET)
 
 .latest-stage3: build-utils/sh/getstage3.sh .git
-	$(eval STAGE3 := $(shell UTILS_PATH="$(UTILS_PATH)" \
-	build-utils/sh/getstage3.sh amd64 -hardened+nomultilib | tail -n 1))
-	$(DOCKER) run -v `pwd`:/tmp/pwd busybox /bin/sh -c \
-	"mkdir -p /tmp/repack; cd /tmp/repack; tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3) ."
-	echo $(STAGE3) > $@
+	UTILS_PATH="$(UTILS_PATH)" \
+	build-utils/sh/getstage3.sh amd64 -hardened+nomultilib | tail -n 1 > $@
 
 .state: .latest-stage3 $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf
 	$(eval TAG := $(shell date +%s)-$(shell git rev-parse HEAD))
-	$(DOCKER) import `cat .latest-stage3` "$(REGISTRY)/$(ORG_NAME)/stage3-amd64-hardened-nomultilib"
+	$(eval STAGE3 := $(shell cat .latest-stage3))
+	$(DOCKER) run -v `pwd`:/tmp/pwd busybox /bin/sh -c \
+	"mkdir -p /tmp/repack; cd /tmp/repack; tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."
+	$(DOCKER) import $(STAGE3).repack "$(REGISTRY)/$(ORG_NAME)/stage3-amd64-hardened-nomultilib"
 	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
 	printf "FROM $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG)\n \
-	LABEL com.rbkmoney.stage3-used=`cat .latest-stage3` \
+	LABEL com.rbkmoney.stage3-used=$(STAGE3) \
 	build_image_tag=null base_image_tag=null \
 	branch=`git name-rev --name-only HEAD` commit=`git rev-parse HEAD`" \
 	| docker build -t $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG) -

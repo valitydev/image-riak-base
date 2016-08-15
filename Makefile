@@ -22,7 +22,11 @@ submodules: $(SUBTARGETS)
 repos: $(REPOS_TARGET)
 
 .latest-stage3: build-utils/sh/getstage3.sh .git
-	UTILS_PATH="$(UTILS_PATH)" build-utils/sh/getstage3.sh amd64 -hardened+nomultilib | tail -n 1 > .latest-stage3
+	$(eval STAGE3 := $(shell UTILS_PATH="$(UTILS_PATH)" \
+	build-utils/sh/getstage3.sh amd64 -hardened+nomultilib | tail -n 1))
+	$(DOCKER) run -v `pwd`:/tmp/pwd busybox /bin/sh -c \
+	"mkdir -p /tmp/repack; cd /tmp/repack; tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3) ."
+	echo $(STAGE3) > $@
 
 .state: .latest-stage3 $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf
 	$(eval TAG := $(shell date +%s)-$(shell git rev-parse HEAD))

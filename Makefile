@@ -29,14 +29,15 @@ repos: $(REPOS_TARGET)
 	$(eval TAG := $(shell date +%s)-$(shell git rev-parse HEAD))
 	$(eval STAGE3 := $(shell cat .latest-stage3))
 	$(DOCKER) run -v `pwd`:/tmp/pwd busybox /bin/sh -c \
-	-w /tmp/repack "tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."
+	--workdir /tmp/repack "tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."
 	$(DOCKER) import $(STAGE3).repack "$(REGISTRY)/$(ORG_NAME)/stage3-amd64-hardened-nomultilib"
 	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
 	printf "FROM $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG)\n \
-	LABEL com.rbkmoney.bootstrap.stage3-used=$(STAGE3) \
-	com.rbkmoney.bootstrap.parent=null \
+	LABEL com.rbkmoney.bootstrap.parent=null \
+	com.rbkmoney.bootstrap.stage3-used=$(STAGE3) \
 	com.rbkmoney.bootstrap.branch=`git name-rev --name-only HEAD` \
-	com.rbkmoney.bootstrap.commit=`git rev-parse HEAD`" \
+	com.rbkmoney.bootstrap.commit_id=`git rev-parse HEAD` \
+	com.rbkmoney.bootstrap.commit_number=`git rev-list --count HEAD`" \
 	| docker build -t $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG) -
 	echo $(TAG) > $@
 

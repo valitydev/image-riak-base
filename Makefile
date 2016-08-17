@@ -28,8 +28,8 @@ repos: $(REPOS_TARGET)
 .state: .latest-stage3 $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf
 	$(eval TAG := $(shell date +%s)-$(shell git rev-parse HEAD))
 	$(eval STAGE3 := $(shell cat .latest-stage3))
-	$(DOCKER) run -v `pwd`:/tmp/pwd busybox /bin/sh -c \
-	--workdir /tmp/repack "tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."
+	$(DOCKER) run -v `pwd`:/tmp/pwd -w /tmp/repack busybox /bin/sh -c \
+	"tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."
 	$(DOCKER) import $(STAGE3).repack "$(REGISTRY)/$(ORG_NAME)/stage3-amd64-hardened-nomultilib"
 	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
 	printf "FROM $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG)\n \

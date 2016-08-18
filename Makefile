@@ -26,24 +26,33 @@ repos: $(REPOS_TARGET)
 	build-utils/sh/getstage3.sh amd64 -hardened+nomultilib | tail -n 1 > $@
 
 .state: .latest-stage3 $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf
-	$(eval TAG := $(shell date +%s)-$(shell git rev-parse HEAD))
+	$(eval COMMIT := $(shell git rev-parse HEAD))
+	$(eval TAG := $(shell date +%s)-$(COMMIT))
+	$(eval BRANCH := $(shell \
+	if [ "HEAD" != $(git rev-parse --abbrev-ref HEAD) ]; then \
+		echo $(git rev-parse --abbrev-ref HEAD); \
+        elif [ -n "$BRANCH_NAME" ]; then \
+		echo $BRANCH_NAME; \
+        else \
+		echo $(git name-rev --name-only HEAD); \
+        fi))
 	$(eval STAGE3 := $(shell cat .latest-stage3))
 	$(DOCKER) run -v `pwd`:/tmp/pwd -w /tmp/repack busybox /bin/sh -c \
 	"tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."
 	$(DOCKER) import $(STAGE3).repack "$(REGISTRY)/$(ORG_NAME)/stage3-amd64-hardened-nomultilib"
 	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
-	printf "FROM $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG)\n \
-	LABEL com.rbkmoney.bootstrap.parent=null \
-	com.rbkmoney.bootstrap.stage3-used=$(STAGE3) \
-	com.rbkmoney.bootstrap.branch=`git name-rev --name-only HEAD` \
-	com.rbkmoney.bootstrap.commit_id=`git rev-parse HEAD` \
-	com.rbkmoney.bootstrap.commit_number=`git rev-list --count HEAD`" \
-	| docker build -t $(REGISTRY)/$(ORG_NAME)/bootstrap:$(TAG) -
+	printf "FROM $(SERVICE_IMAGE_NAME):$(TAG)\n \
+	LABEL com.rbkmoney.$(SERVICE_NAME).parent=null \
+	com.rbkmoney.$(SERVICE_NAME).stage3-used=$(STAGE3) \
+	com.rbkmoney.$(SERVICE_NAME).branch=$(BRANCH) \
+	com.rbkmoney.$(SERVICE_NAME).commit_id=$(COMMIT) \
+	com.rbkmoney.$(SERVICE_NAME).commit_number=`git rev-list --count HEAD`" \
+	| docker build -t $(SERVICE_IMAGE_NAME):$(TAG) -
 	echo $(TAG) > $@
 
 test:
-	$(DOCKER) run "$(REGISTRY)/$(ORG_NAME)/$(SERVICE_NAME):$(shell cat .state)" \
+	$(DOCKER) run "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \
 	bash -c "salt --versions-report; ssh -V"
 
 push:
-	$(DOCKER) push "$(REGISTRY)/$(ORG_NAME)/$(SERVICE_NAME):$(shell cat .state)"
+	$(DOCKER) push "$(SERVICE_IMAGE_NAME):$(shell cat .state)"

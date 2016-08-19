@@ -35,7 +35,7 @@ repos: $(REPOS_TARGET)
 		echo $BRANCH_NAME; \
         else \
 		echo $(git name-rev --name-only HEAD); \
-        fi)
+        fi))
 	$(eval STAGE3 := $(shell cat .latest-stage3))
 	$(DOCKER) run -v `pwd`:/tmp/pwd -w /tmp/repack busybox /bin/sh -c \
 	"tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."

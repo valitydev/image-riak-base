@@ -29,13 +29,13 @@ repos: $(REPOS_TARGET)
 	$(eval COMMIT := $(shell git rev-parse HEAD))
 	$(eval TAG := $(shell date +%s)-$(COMMIT))
 	$(eval BRANCH := $(shell \
-	if [ "HEAD" != $(git rev-parse --abbrev-ref HEAD) ]; then \
+	if [[ "HEAD" != $(git rev-parse --abbrev-ref HEAD) ]]; then \
 		echo $(git rev-parse --abbrev-ref HEAD); \
         elif [ -n "$BRANCH_NAME" ]; then \
 		echo $BRANCH_NAME; \
         else \
 		echo $(git name-rev --name-only HEAD); \
-        fi))
+        fi)
 	$(eval STAGE3 := $(shell cat .latest-stage3))
 	$(DOCKER) run -v `pwd`:/tmp/pwd -w /tmp/repack busybox /bin/sh -c \
 	"tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."

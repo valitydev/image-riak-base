@@ -6,7 +6,7 @@ $(SERVICE_NAME): .state
 
 -include $(UTILS_PATH)/make_lib/utils_repo.mk
 PACKER := $(shell which packer 2>/dev/null)
-SUBMODULES = build-utils
+SUBMODULES = $(UTILS_PATH)
 SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
 REPOS = portage
 REPOS_TARGET = $(patsubst %,$(IMAGES_SHARED)/%/.git,$(REPOS))
@@ -21,24 +21,24 @@ submodules: $(SUBTARGETS)
 
 repos: $(REPOS_TARGET)
 
-.latest-stage3: build-utils/sh/getstage3.sh .git
-	UTILS_PATH="$(UTILS_PATH)" \
-	build-utils/sh/getstage3.sh amd64 -hardened+nomultilib | tail -n 1 > $@
+.latest-stage3: $(UTILS_PATH)/sh/getstage3.sh .git
+	$(UTILS_PATH)/sh/getstage3.sh amd64 -hardened+nomultilib | tail -n 1 > $@
 
 .state: .latest-stage3 $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf
 	$(eval COMMIT := $(shell git rev-parse HEAD))
 	$(eval TAG := $(shell date +%s)-$(COMMIT))
 	$(eval BRANCH := $(shell \
-	if [ "HEAD" != $(git rev-parse --abbrev-ref HEAD) ]; then \
-		echo $(git rev-parse --abbrev-ref HEAD); \
+	if [[ "HEAD" != "`git rev-parse --abbrev-ref HEAD`" ]]; then \
+		echo "`git rev-parse --abbrev-ref HEAD`"; \
         elif [ -n "$BRANCH_NAME" ]; then \
 		echo $BRANCH_NAME; \
         else \
-		echo $(git name-rev --name-only HEAD); \
+		echo "`git name-rev --name-only HEAD`"; \
         fi))
 	$(eval STAGE3 := $(shell cat .latest-stage3))
+	$(shell test -z "$(STAGE3)" && exit 1)
 	$(DOCKER) run -v `pwd`:/tmp/pwd -w /tmp/repack busybox /bin/sh -c \
-	"tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack ."
+	"tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack *"
 	$(DOCKER) import $(STAGE3).repack "$(REGISTRY)/$(ORG_NAME)/stage3-amd64-hardened-nomultilib"
 	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
 	printf "FROM $(SERVICE_IMAGE_NAME):$(TAG)\n \

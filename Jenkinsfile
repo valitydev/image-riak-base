@@ -14,17 +14,23 @@ build("image-bootstrap", 'docker-host') {
     }
   }
   runStage('stage3 download') {
-    sh 'make .latest-stage3'
+    sh 'make .latest-stage3.loaded'
   }
   runStage('bootstrap image build') {
     sh 'make bootstrap'
   }
-  runStage('smoke test') {
-    sh 'make test'
-  }
-  if (env.BRANCH_NAME == 'master') {
-    runStage('docker image push') {
-      sh 'make push'
+  try {
+    runStage('smoke test') {
+      sh 'make test'
+    }
+    if (env.BRANCH_NAME == 'master') {
+      runStage('docker image push') {
+	sh 'make push'
+      }
+    }
+  } finally {
+    runStage('rm local image') {
+      sh 'make clean'
     }
   }
 }

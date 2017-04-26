@@ -35,10 +35,12 @@ submodules: $(SUBTARGETS)
 repos: $(REPOS_TARGET)
 
 update-latest-stage3: $(UTILS_PATH)/sh/getstage3.sh .git
-	$(UTILS_PATH)/sh/getstage3.sh find-latest amd64 -hardened+nomultilib | tail -n 1 > .latest-stage3
+	$(UTILS_PATH)/sh/getstage3.sh find-latest -D "http://gentoo.bakka.su/gentoo-distfiles" \
+		amd64 -hardened+nomultilib | tail -n 1 > .latest-stage3
 
 .latest-stage3.loaded: .latest-stage3
-	$(UTILS_PATH)/sh/getstage3.sh get-path $(shell cat .latest-stage3) | tail -n 1 > $@
+	$(UTILS_PATH)/sh/getstage3.sh get-path -D "http://gentoo.bakka.su/gentoo-distfiles" \
+		$(shell cat .latest-stage3) | tail -n 1 > $@
 
 .state: .latest-stage3.loaded $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf
 	$(eval STAGE3 := $(shell cat .latest-stage3.loaded))

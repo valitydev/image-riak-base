@@ -2,6 +2,7 @@
 source /lib/gentoo/functions.sh
 
 export EMERGE="emerge -q"
+SALT_VERSION="2015.8.13"
 
 ebegin "Setting locales to generate"
 cat <<EOF> /etc/locale.gen
@@ -51,8 +52,8 @@ eend $? "Failed" || exit $?
 
 ebegin "Setting bootstrap flags"
 mkdir -p /etc/portage/package.{accept_keywords,keywords,use,env} \
-    && cat <<'EOF'>> /etc/portage/package.keywords/bootstrap
-=app-admin/salt-2015.8.11 ~amd64
+    && cat <<EOF>> /etc/portage/package.keywords/bootstrap
+=app-admin/salt-${SALT_VERSION} ~amd64
 net-libs/zeromq:0/5 ~amd64
 <dev-python/pyzmq-16 ~amd64
 dev-python/cffi ~amd64
@@ -72,7 +73,7 @@ sed -i "s|\# sed-remove||g" /etc/portage/make.conf
 eend $? "Failed" || exit $?
 
 ebegin "Emerging localepurge salt qemacs nvi openssh"
-${EMERGE} --verbose=n ">=zeromq-4.1" salt qemacs nvi app-admin/localepurge
+${EMERGE} --verbose=n ">=zeromq-4.1" "=app-admin/salt-${SALT_VERSION}" qemacs nvi app-admin/localepurge
 eend $? "Failed" || exit $?
 
 ebegin "Selecting python2.7 as default python interpreter"

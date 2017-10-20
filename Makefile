@@ -60,7 +60,7 @@ update-latest-stage3: $(UTILS_PATH)/sh/getstage3.sh .git
 
 test:
 	$(DOCKER) run "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \
-	bash -c "salt --versions-report"
+	bash -c "python --version""
 
 push:
 	$(DOCKER) push "$(SERVICE_IMAGE_NAME):$(shell cat .state)"

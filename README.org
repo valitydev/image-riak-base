@@ -2,7 +2,6 @@
 #+AUTHOR: Grigory Antsiferov
 #+EMAIL: azr@bakka.su
 
-В этом репозитории находятся исходные коды для создания docker образа =rbkmoney/bootstrap=, родительского образа для =rbkmoney/base=, следовательно и для всей иерархии образов =rbkmoney/=.
 
 * Необходимые утилиты
 ** =git=

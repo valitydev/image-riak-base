@@ -1,7 +1,7 @@
 #!groovy
 // -*- mode: groovy -*-
 
-build("image-bootstrap", 'docker-host') {
+build("image-embedded", 'docker-host') {
   checkoutRepo()
   withCredentials(
     [[$class: 'FileBinding', credentialsId: 'github-rbkmoney-ci-bot-file', variable: 'GITHUB_PRIVKEY'],
@@ -16,8 +16,8 @@ build("image-bootstrap", 'docker-host') {
   runStage('stage3 download') {
     sh 'make .latest-stage3.loaded'
   }
-  runStage('bootstrap image build') {
-    sh 'make bootstrap'
+  runStage('embedded image build') {
+    sh 'make embedded'
   }
   try {
     runStage('smoke test') {

@@ -1,4 +1,4 @@
-SERVICE_NAME := bootstrap
+SERVICE_NAME := embedded
 UTILS_PATH := build-utils
 
 .PHONY: $(SERVICE_NAME) push submodules repos update-latest-stage3

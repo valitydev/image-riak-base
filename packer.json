@@ -27,7 +27,7 @@
     "post-processors": [
 	{
 	    "type": "docker-tag",
-	    "repository": "{{user `docker-registry`}}/rbkmoney/bootstrap",
+	    "repository": "{{user `docker-registry`}}/rbkmoney/embedded",
 	    "tag": "{{user `image-tag`}}"
 	}
     ]

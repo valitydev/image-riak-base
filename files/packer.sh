@@ -28,6 +28,6 @@ eend $? "Failed" || exit $?
 emerge --quiet-build=n --verbose --verbose-conflicts --tree openssl iproute2 grep gawk \
     coreutils attr util-linux net-misc/curl sed
 
-eselect locale set en_DK.utf8 || exit $?
+#eselect locale set en_DK.UTF-8 || exit $?
 
 rm -rf $ROOT/var/cache/edb/*

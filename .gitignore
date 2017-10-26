@@ -7,4 +7,4 @@ latest-stage3-*
 *.sublime-workspace
 .DS_Store
 Dockerfile
-
+.*.sw?

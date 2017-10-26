@@ -34,29 +34,13 @@ submodules: $(SUBTARGETS)
 
 repos: $(REPOS_TARGET)
 
-update-latest-stage3: $(UTILS_PATH)/sh/getstage3.sh .git
-	$(UTILS_PATH)/sh/getstage3.sh find-latest -D "http://gentoo.bakka.su/gentoo-distfiles" \
-		amd64 -hardened+nomultilib | tail -n 1 > .latest-stage3
+Dockerfile: Dockerfile.sh
+	SERVICE_NAME=$(SERVICE_NAME) BRANCH=$(BRANCH) COMMIT=$(COMMIT) ./Dockerfile.sh > Dockerfile
 
-.latest-stage3.loaded: .latest-stage3
-	$(UTILS_PATH)/sh/getstage3.sh get-path -D "http://gentoo.bakka.su/gentoo-distfiles" \
-		$(shell cat .latest-stage3) | tail -n 1 > $@
-
-.state: .latest-stage3.loaded $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf
-	$(eval STAGE3 := $(shell cat .latest-stage3.loaded))
-	$(shell test -z "$(STAGE3)" && exit 1)
-	$(DOCKER) run -v `pwd`:/tmp/pwd -w /tmp/repack busybox /bin/sh -c \
-	"tar xjf /tmp/pwd/$(STAGE3); tar cjf /tmp/pwd/$(STAGE3).repack *"
-	$(DOCKER) import $(STAGE3).repack "$(REGISTRY)/$(ORG_NAME)/stage3-amd64-hardened-nomultilib"
+.state: $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf Dockerfile
+	mkdir -p portage-root
 	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
-	printf "FROM $(SERVICE_IMAGE_NAME):$(TAG)\n \
-	LABEL com.rbkmoney.$(SERVICE_NAME).parent=null \
-	com.rbkmoney.$(SERVICE_NAME).stage3-used=$(STAGE3) \
-	com.rbkmoney.$(SERVICE_NAME).branch=$(BRANCH) \
-	com.rbkmoney.$(SERVICE_NAME).commit_id=$(COMMIT) \
-	com.rbkmoney.$(SERVICE_NAME).commit_number=`git rev-list --count HEAD`" \
-	| docker build -t $(SERVICE_IMAGE_NAME):$(TAG) -
-	echo $(TAG) > $@
+	docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
 
 test:
 	$(DOCKER) run "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \

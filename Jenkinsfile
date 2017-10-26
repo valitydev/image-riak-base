@@ -13,9 +13,6 @@ build("image-embedded", 'docker-host') {
       sh 'make repos'
     }
   }
-  runStage('stage3 download') {
-    sh 'make .latest-stage3.loaded'
-  }
   runStage('embedded image build') {
     sh 'make embedded'
   }

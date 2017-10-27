@@ -40,7 +40,9 @@ Dockerfile: Dockerfile.sh
 .state: $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf Dockerfile
 	mkdir -p portage-root
 	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
-	docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
+	# XXX w/o sudo suided files cause ENOPERM when sending build conext to
+	# docker
+	sudo docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
 	echo $(TAG) > $@
 
 

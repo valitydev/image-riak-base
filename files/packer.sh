@@ -43,4 +43,4 @@ mkdir -p $ROOT/etc
 emerge glibc coreutils sed grep gawk attr net-misc/curl openssl iproute2 bash
 
 
-#rm -rf $ROOT/var/cache/edb/*
+rm -rf $ROOT/var/cache/edb/*

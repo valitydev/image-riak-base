@@ -41,6 +41,8 @@ Dockerfile: Dockerfile.sh
 	mkdir -p portage-root
 	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
 	docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
+	echo $(TAG) > $@
+
 
 test:
 	$(DOCKER) run "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \
@@ -52,4 +54,6 @@ push:
 clean:
 	test -f .state \
 	&& $(DOCKER) rmi -f "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \
-	&& rm .state
+	&& rm .state  \
+	&& rm -rf portage-root
+

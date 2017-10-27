@@ -9,6 +9,7 @@ gcc-config x86_64-pc-linux-gnu-5.4.0
 
 # Set portage root and install stuff
 export ROOT=/tmp/portage-root
+export USE="-suid -pam -fdformat -ncurses -nls"
 mkdir -p $ROOT/etc
 
 ebegin "Setting locales to generate"
@@ -27,7 +28,5 @@ eend $? "Failed" || exit $?
 
 emerge --quiet-build=n --verbose --verbose-conflicts --tree openssl iproute2 grep gawk \
     coreutils attr util-linux net-misc/curl sed
-
-#eselect locale set en_DK.UTF-8 || exit $?
 
 rm -rf $ROOT/var/cache/edb/*

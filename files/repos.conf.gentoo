@@ -1,0 +1,10 @@
+[DEFAULT]
+main-repo=gentoo
+
+[gentoo]
+location=/usr/portage
+sync-type=git
+auto-sync=True
+sync-depth=1
+sync-uri=git://git.bakka.su/gentoo-mirror
+

@@ -1,11 +1,11 @@
 SERVICE_NAME := embedded
+BUILD_IMAGE_TAG := 10ace69bc3a1fc3179672098b7be081f9f6018b2
 UTILS_PATH := build-utils
 
 .PHONY: $(SERVICE_NAME) push submodules repos update-latest-stage3
 $(SERVICE_NAME): .state
 
 -include $(UTILS_PATH)/make_lib/utils_repo.mk
-PACKER := $(shell which packer 2>/dev/null)
 
 COMMIT := $(shell git rev-parse HEAD)
 TAG := $(COMMIT)
@@ -35,14 +35,14 @@ submodules: $(SUBTARGETS)
 repos: $(REPOS_TARGET)
 
 Dockerfile: Dockerfile.sh
-	SERVICE_NAME=$(SERVICE_NAME) BRANCH=$(BRANCH) COMMIT=$(COMMIT) ./Dockerfile.sh > Dockerfile
+	REGISTRY=$(REGISTRY) ORG_NAME=$(ORG_NAME) \
+	BASE_IMAGE_NAME=$(BASE_IMAGE_NAME) BASE_IMAGE_TAG=$(BASE_IMAGE_TAG) \
+	BUILD_IMAGE_TAG=$(BUILD_IMAGE_TAG) \
+	COMMIT=$(COMMIT) BRANCH=$(BRANCH) \
+	./Dockerfile.sh > Dockerfile
 
-.state: $(PACKER) $(REPOS_TARGET) packer.json files/packer.sh files/portage.make.conf Dockerfile
-	mkdir -p portage-root
-	$(PACKER) build -var 'image-tag=$(TAG)' packer.json
-	# XXX w/o sudo suided files cause ENOPERM when sending build conext to
-	# docker
-	sudo docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
+.state: $(REPOS_TARGET) Dockerfile
+	docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
 	echo $(TAG) > $@
 
 

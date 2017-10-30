@@ -48,7 +48,7 @@ Dockerfile: Dockerfile.sh
 
 test:
 	$(DOCKER) run "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \
-	bash -c "python --version"
+	bash -c "/bin/bash --version"
 
 push:
 	$(DOCKER) push "$(SERVICE_IMAGE_NAME):$(shell cat .state)"

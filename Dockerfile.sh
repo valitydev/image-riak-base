@@ -16,7 +16,7 @@ ENV ROOT=/tmp/portage-root
 ENV USE=""
 RUN emerge --quiet-build=n --verbose glibc coreutils sed grep gawk attr net-misc/curl openssl iproute2 bash 
 # Install logger stub to avoid install util-linux
-COPY files/logger /usr/bin/logger
+COPY files/logger /tmp/portage-root/usr/bin/logger
 
 # TODO: more cleanup
 RUN rm -rf $ROOT/var/cache/edb/*

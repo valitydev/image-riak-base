@@ -1,19 +1,15 @@
 #+TITLE: Bootstrap docker image
-#+AUTHOR: Grigory Antsiferov
-#+EMAIL: azr@bakka.su
+#+AUTHOR: Timur Izhbulatov
+#+EMAIL: timochka@gmail.com
 
 
 * Необходимые утилиты
 ** =git=
 ** =GNUmake=
 ** =coreutils=, =bash=, =sed=, =awk=, =wget=, вот это все.
-** =Docker= и =Packer=
+** =Docker=
 * Как собрать
 Если у вас нашлось в =PATH= все вышеперечисленное, то сборка будет проста.
 #+BEGIN_SRC shell-script
-GITHUB_PRIVKEY="/path/to/file" \
-BAKKA_SU_PRIVKEY="/path/to/file" \
-	make -j4 embedded # or just make, if you are feeling lucky.
+make
 #+END_SRC
-* Notes
-** TODO Скачивать в stage3 в ~/.cache/rbkmoney/images/ вместо текущей папки.

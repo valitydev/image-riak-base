@@ -1,4 +1,4 @@
-#+TITLE: Bootstrap docker image
+#+TITLE: Embedded docker image
 #+AUTHOR: Timur Izhbulatov
 #+EMAIL: timochka@gmail.com
 

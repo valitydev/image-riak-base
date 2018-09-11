@@ -9,7 +9,7 @@ COPY overlays/ /var/lib/layman
 # Set portage root and install stuff
 ENV ROOT=/tmp/portage-root
 RUN emerge --getbinpkgonly glibc coreutils
-RUN emerge coreutils sed grep gawk attr net-misc/curl openssl iproute2 bash
+RUN emerge sys-libs/zlib openssl sys-apps/sed sys-apps/grep sys-apps/gawk net-misc/curl iproute2 bash
 # Install logger stub to avoid installing util-linux
 COPY files/logger /tmp/portage-root/usr/bin/logger
 

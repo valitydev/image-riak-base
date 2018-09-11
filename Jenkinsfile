@@ -13,8 +13,8 @@ build("image-embedded", 'docker-host') {
       sh 'make repos'
     }
   }
-  runStage('embedded image build') {
-    sh 'make embedded'
+  runStage('embedded-base image build') {
+    sh 'make'
   }
   try {
     runStage('smoke test') {

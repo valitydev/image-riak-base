@@ -42,7 +42,7 @@ Dockerfile: Dockerfile.sh
 	COMMIT=$(COMMIT) BRANCH=$(BRANCH) \
 	./Dockerfile.sh > Dockerfile
 
-.state: Dockerfile $(SUBTARGETS) $(REPOS_TARGET)
+.state: Dockerfile $(REPOS)
 	docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
 	echo $(TAG) > $@
 

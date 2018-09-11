@@ -1,6 +1,6 @@
-#+TITLE: Embedded docker image
-#+AUTHOR: Timur Izhbulatov
-#+EMAIL: timochka@gmail.com
+#+TITLE: Embedded base docker image
+#+AUTHOR: Antsiferov Grigory
+#+EMAIL: azr@bakka.su
 
 
 * Необходимые утилиты

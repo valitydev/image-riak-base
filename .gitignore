@@ -1,8 +1,6 @@
-.latest-stage3.loaded
 .state
-.squashed
-stage3-*
-latest-stage3-*
+overlays
+portage
 *~
 *.sublime-workspace
 .DS_Store

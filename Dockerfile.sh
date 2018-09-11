@@ -1,21 +1,20 @@
 #!/bin/sh
 cat <<EOF
 FROM ${REGISTRY}/${ORG_NAME}/build:${BUILD_IMAGE_TAG} as build
-
-# XXX Fix broken build image (compilation error)
-ENV USE="multitarget graphite go"
-COPY files/repos.conf.gentoo /etc/portage/repos.conf/gentoo.conf
-RUN eix-sync && \
-    USE="multitarget graphite go" \
-    emerge --backtrack=50 --getbinpkgonly --backtrack=50 glibc binutils binutils-libs gcc && \
-    eselect binutils set x86_64-pc-linux-gnu-2.28.1 && \
-    gcc-config x86_64-pc-linux-gnu-5.4.0
+RUN rm /etc/portage/repos.conf/*.conf
+COPY files/portage/ /etc/portage
+COPY portage/ /usr/portage
+COPY overlays/ /var/lib/layman
 
 # Set portage root and install stuff
-ENV ROOT=/tmp/portage-root
-ENV USE=""
-RUN emerge --quiet-build=n --verbose glibc coreutils sed grep gawk attr net-misc/curl openssl iproute2 bash 
-# Install logger stub to avoid install util-linux
+
+
+RUN export ROOT=/tmp/portage-root \
+    && mkdir -p /tmp/portage-root/etc/ \
+    && echo 'Europe/Moscow' > /tmp/portage-root/etc/timezone \
+    && emerge --getbinpkgonly glibc coreutils sys-libs/timezone-data \
+    && emerge sys-libs/zlib openssl sys-apps/sed sys-apps/grep sys-apps/gawk net-misc/curl iproute2 bash
+# Install logger stub to avoid installing util-linux
 COPY files/logger /tmp/portage-root/usr/bin/logger
 
 # TODO: more cleanup

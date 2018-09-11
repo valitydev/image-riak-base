@@ -1,8 +1,10 @@
-SERVICE_NAME := embedded
-BUILD_IMAGE_TAG := 10ace69bc3a1fc3179672098b7be081f9f6018b2
+SERVICE_NAME := embedded-base
+BUILD_IMAGE_TAG := 9d4d70317dd08abd400798932a231798ee254a87
+PORTAGE_REF := 5e4f68b66477e904cd0b3deaf97531dabcb48300
+BAKKA_REF := be97f6a4e092c2a3704b7746bec78c91dcc4cf15
 UTILS_PATH := build-utils
 
-.PHONY: $(SERVICE_NAME) push submodules repos update-latest-stage3
+.PHONY: $(SERVICE_NAME) push submodules repos
 $(SERVICE_NAME): .state
 
 -include $(UTILS_PATH)/make_lib/utils_repo.mk
@@ -21,7 +23,7 @@ fi)
 
 SUBMODULES = $(UTILS_PATH)
 SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
-REPOS = portage
+REPOS = portage overlays/baka-bakka
 REPOS_TARGET = $(patsubst %,$(IMAGES_SHARED)/%/.git,$(REPOS))
 
 $(SUBTARGETS):
@@ -36,12 +38,11 @@ repos: $(REPOS_TARGET)
 
 Dockerfile: Dockerfile.sh
 	REGISTRY=$(REGISTRY) ORG_NAME=$(ORG_NAME) \
-	BASE_IMAGE_NAME=$(BASE_IMAGE_NAME) BASE_IMAGE_TAG=$(BASE_IMAGE_TAG) \
 	BUILD_IMAGE_TAG=$(BUILD_IMAGE_TAG) \
 	COMMIT=$(COMMIT) BRANCH=$(BRANCH) \
 	./Dockerfile.sh > Dockerfile
 
-.state: $(REPOS_TARGET) Dockerfile
+.state: Dockerfile $(REPOS)
 	docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
 	echo $(TAG) > $@
 

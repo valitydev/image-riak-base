@@ -1,0 +1,3 @@
+sys-apps/coreutils multicall -split-usr
+sys-apps/iproute2 minimal -iptables
+dev-libs/openssl -sslv2 -sslv3

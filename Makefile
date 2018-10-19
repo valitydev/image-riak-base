@@ -49,7 +49,7 @@ Dockerfile: Dockerfile.sh
 
 test:
 	$(DOCKER) run "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \
-	bash -c "/bin/bash --version"
+	bash -c "bash --version; ip addr"
 
 push:
 	$(DOCKER) push "$(SERVICE_IMAGE_NAME):$(shell cat .state)"

@@ -14,7 +14,7 @@ RUN export ROOT=/tmp/portage-root \
     && echo 'Europe/Moscow' > /tmp/portage-root/etc/timezone \
     && emerge --getbinpkgonly glibc coreutils sys-libs/timezone-data \
     && emerge sys-libs/zlib openssl sys-apps/sed sys-apps/grep sys-apps/gawk net-misc/curl iproute2 bash \
-    dev-libs/elfutils
+    dev-libs/elfutils net-libs/libmnl
 # Install logger stub to avoid installing util-linux
 COPY files/logger /tmp/portage-root/usr/bin/logger
 

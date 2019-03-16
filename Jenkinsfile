@@ -14,7 +14,9 @@ build("image-embedded", 'docker-host') {
     }
   }
   runStage('embedded-base image build') {
-    sh 'make'
+    docker.withRegistry('https://dr2.rbkmoney.com/v2/', 'jenkins_harbor') {
+      sh 'make'
+    }
   }
   try {
     runStage('smoke test') {
@@ -22,7 +24,9 @@ build("image-embedded", 'docker-host') {
     }
     if (env.BRANCH_NAME == 'master') {
       runStage('docker image push') {
-	sh 'make push'
+        docker.withRegistry('https://dr2.rbkmoney.com/v2/', 'jenkins_harbor') {
+          sh 'make push'
+        }
       }
     }
   } finally {

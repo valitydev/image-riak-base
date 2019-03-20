@@ -1,6 +1,6 @@
 .state
 overlays
-portage
+/portage
 *~
 *.sublime-workspace
 .DS_Store

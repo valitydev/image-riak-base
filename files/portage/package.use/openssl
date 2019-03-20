@@ -1,0 +1,2 @@
+sys-libs/zlib minizip
+dev-libs/openssl -sslv2 -sslv3

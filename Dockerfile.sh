@@ -6,23 +6,12 @@ COPY files/portage/ /etc/portage
 COPY portage/ /usr/portage
 COPY overlays/ /var/lib/layman
 
-# Set portage root and install stuff
-
-
-RUN export ROOT=/tmp/portage-root \
-    && mkdir -p /tmp/portage-root/etc/ \
-    && echo 'Europe/Moscow' > /tmp/portage-root/etc/timezone \
-    && emerge --getbinpkgonly glibc coreutils sys-libs/timezone-data \
-    && emerge sys-libs/zlib openssl sys-apps/sed sys-apps/grep sys-apps/gawk net-misc/curl iproute2 bash \
-    dev-libs/elfutils net-libs/libmnl
-# Install logger stub to avoid installing util-linux
-COPY files/logger /tmp/portage-root/usr/bin/logger
-
-# TODO: more cleanup
-RUN rm -rf $ROOT/var/cache/edb/*
+COPY files/install.sh /
+RUN /install.sh
 
 FROM scratch 
 COPY --from=build /tmp/portage-root/ /
+RUN busybox --install
 LABEL com.rbkmoney.${SERVICE_NAME}.parent=null \
     com.rbkmoney.${SERVICE_NAME}.parent_tag=null  \
     com.rbkmoney.${SERVICE_NAME}.branch=${BRANCH}  \

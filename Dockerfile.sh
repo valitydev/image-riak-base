@@ -1,7 +1,8 @@
 #!/bin/sh
 cat <<EOF
 FROM ${REGISTRY}/${ORG_NAME}/build:${BUILD_IMAGE_TAG} as build
-RUN rm /etc/portage/repos.conf/*.conf
+RUN rm -r /etc/portage/repos.conf/*.conf \
+    /etc/portage/savedconfig/*
 COPY files/portage/ /etc/portage
 COPY portage/ /usr/portage
 COPY overlays/ /var/lib/layman

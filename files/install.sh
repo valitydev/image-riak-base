@@ -7,7 +7,11 @@ source /etc/portage/make.conf
 
 GCC_LDPATH="$(gcc-config -L)"
 
-mkdir -p "${DEST}"/{etc,run,var}/
+mkdir -p "${DEST}"/{etc,run,var,lib64,usr/lib64}/
+ln -s /run "${DEST}/var/run"
+ln -s /lib64 "${DEST}/lib"
+ln -s /usr/lib64 "${DEST}/usr/lib64"
+
 echo 'Europe/Moscow' > "${DEST}"/etc/timezone
 
 export ROOT="${DEST}"
@@ -18,7 +22,6 @@ emerge -t sys-libs/zlib dev-libs/openssl net-libs/libmnl dev-libs/elfutils \
 equery s \*
 # Link logger to busybox to avoid installing util-linux
 ln -s /bin/busybox "${DEST}/usr/bin/logger"
-ln -s /run /var/run
 
 mkdir -p "$(dirname "${DEST}${GCC_LDPATH}")"
 cp -r "${GCC_LDPATH}" "${DEST}${GCC_LDPATH}"

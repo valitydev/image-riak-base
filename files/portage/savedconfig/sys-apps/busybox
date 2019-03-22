@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Busybox version: 1.29.3
-# Sat Mar 16 15:29:42 2019
+# Fri Mar 22 10:29:51 2019
 #
 CONFIG_HAVE_DOT_CONFIG=y
 
@@ -39,7 +39,7 @@ CONFIG_PLATFORM_LINUX=y
 #
 # Build Options
 #
-CONFIG_STATIC=n
+# CONFIG_STATIC is not set
 # CONFIG_PIE is not set
 # CONFIG_NOMMU is not set
 # CONFIG_BUILD_LIBBUSYBOX is not set
@@ -282,7 +282,7 @@ CONFIG_FEATURE_READLINK_FOLLOW=y
 CONFIG_REALPATH=y
 CONFIG_RM=y
 CONFIG_RMDIR=y
-# CONFIG_SEQ is not set
+CONFIG_SEQ=y
 # CONFIG_SHRED is not set
 # CONFIG_SHUF is not set
 CONFIG_SLEEP=y

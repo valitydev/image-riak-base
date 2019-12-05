@@ -1,9 +1,8 @@
+UTILS_PATH := build-utils
 SERVICE_NAME := embedded-base
 BUILD_IMAGE_TAG := 4536c31941b9c27c134e8daf0fd18848809219c9
 PORTAGE_REF := 50afbf5c38f5bf378a4b3aa7a6068914d27d9003
-BAKKA_REF := 188a683783ed2a8cb4b106d7d844991878db7c52
-UTILS_PATH := build-utils
-REGISTRY := dr2.rbkmoney.com
+OVERLAYS_RBKMONEY_REF := a00a337bf6e6b566b545015abcf68a2daabd4e7c
 
 .PHONY: $(SERVICE_NAME) push submodules repos
 $(SERVICE_NAME): .state
@@ -24,8 +23,7 @@ fi)
 
 SUBMODULES = $(UTILS_PATH)
 SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
-REPOS = portage overlays/baka-bakka
-REPOS_TARGET = $(patsubst %,$(IMAGES_SHARED)/%/.git,$(REPOS))
+REPOS = portage overlays/rbkmoney
 
 $(SUBTARGETS):
 	$(eval SSH_PRIVKEY := $(shell echo $(GITHUB_PRIVKEY) | sed -e 's|%|%%|g'))
@@ -35,7 +33,7 @@ $(SUBTARGETS):
 
 submodules: $(SUBTARGETS)
 
-repos: $(REPOS_TARGET)
+repos: $(REPOS)
 
 Dockerfile: Dockerfile.sh
 	REGISTRY=$(REGISTRY) ORG_NAME=$(ORG_NAME) \
@@ -46,7 +44,6 @@ Dockerfile: Dockerfile.sh
 .state: Dockerfile $(REPOS)
 	docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
 	echo $(TAG) > $@
-
 
 test:
 	$(DOCKER) run "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \
@@ -60,4 +57,3 @@ clean:
 	&& $(DOCKER) rmi -f "$(SERVICE_IMAGE_NAME):$(shell cat .state)" \
 	&& rm .state  \
 	&& rm -rf portage-root
-

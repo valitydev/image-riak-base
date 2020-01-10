@@ -1,7 +1,8 @@
-#+TITLE: Embedded base docker image
+#+TITLE: Embedded riak docker image
 #+AUTHOR: Antsiferov Grigory
 #+EMAIL: azr@bakka.su
-
+#+AUTHOR: Sergey Elin
+#+EMAIL: s.elin@rbkmoney.com
 
 * Необходимые утилиты
 ** =git=

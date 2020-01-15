@@ -21,7 +21,7 @@ else \
 	echo `git name-rev --name-only HEAD`; \
 fi)
 
-SUBMODULES = $(UTILS_PATH)
+SUBMODULES = $(UTILS_PATH) riak
 SUBTARGETS = $(patsubst %,%/.git,$(SUBMODULES))
 REPOS = portage overlays/rbkmoney
 

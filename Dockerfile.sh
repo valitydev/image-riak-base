@@ -10,6 +10,9 @@ COPY overlays/ /var/lib/layman
 
 COPY files/install.sh /
 COPY files/vars.config /
+COPY files/riak-rebar.config /
+COPY files/riak-reltool.config /
+COPY files/riak.schema /
 RUN /install.sh
 
 # Install custom hooks

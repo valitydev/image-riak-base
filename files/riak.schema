@@ -74,7 +74,6 @@
       undefined -> [];
       ErrorFilename -> [{lager_file_backend, [{file, ErrorFilename},
                                               {level, error},
-                                              {formatter, lager_logstash_formatter},
                                               {size, 10485760},
                                               {date, "$D0"},
                                               {count, 5}]}]

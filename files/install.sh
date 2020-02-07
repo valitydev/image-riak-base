@@ -10,7 +10,6 @@ GCC_LDPATH="$(gcc-config -L)"
 # Build riak
 export OPENSSL_VERSION=1.0.2u
 export GIT_BRANCH_OTP=basho-otp-16
-export GIT_BRANCH_RIAK=riak-2.9.0p5
 
 # Build OpenSSL
 cd /opt
@@ -26,6 +25,7 @@ cd openssl-${OPENSSL_VERSION}; \
 cd /opt
 git clone -n -b $GIT_BRANCH_OTP 'https://github.com/basho/otp.git' $GIT_BRANCH_OTP
 cd $GIT_BRANCH_OTP; git checkout -q $GIT_BRANCH_OTP; \
+    patch -p 0 < /erlang_otp.patch; \
     ./otp_build setup -a --prefix=/usr/local \
                          --enable-m64-build \
                          --with-ssl=/usr/local/ssl \
@@ -33,18 +33,8 @@ cd $GIT_BRANCH_OTP; git checkout -q $GIT_BRANCH_OTP; \
                          --disable-hipe \
                          --enable-smp-support \
                          --enable-threads \
-                         --without-termcap \
                          --enable-kernel-poll; \
     make install
-
-cd /opt
-git clone -n -b $GIT_BRANCH_RIAK https://github.com/basho/riak.git riak;
-cd riak; git checkout -q $GIT_BRANCH_RIAK;
-mv /riak-rebar.config /opt/riak/rebar.config
-mv /riak-reltool.config /opt/riak/rel/reltool.config
-mv /riak.schema /opt/riak/rel/files/riak.schema
-make lock
-make rel OVERLAY_VARS="overlay_vars=/vars.config"
 
 # Build image
 mkdir -p "${DEST}"/{etc,run,var,lib64,usr/lib64}/

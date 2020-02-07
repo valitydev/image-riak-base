@@ -9,11 +9,14 @@ COPY portage/ /usr/portage
 COPY overlays/ /var/lib/layman
 
 COPY files/install.sh /
+COPY files/install-riak.sh /
 COPY files/vars.config /
 COPY files/riak-rebar.config /
 COPY files/riak-reltool.config /
 COPY files/riak.schema /
+COPY files/erlang_otp.patch /
 RUN /install.sh
+RUN /install-riak.sh
 
 # Install custom hooks
 COPY files/prestart.d /tmp/portage-root/etc/riak/prestart.d

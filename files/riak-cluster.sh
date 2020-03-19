@@ -53,4 +53,14 @@ done
 tail -n 1024 -f /var/log/riak/console.log &
 PID=$!
 trap "$RIAK stop; kill $PID" SIGTERM SIGINT
-while riak ping; do sleep 10; done
+
+# avoid log spamming and unnecessary exit once `riak ping` fails
+set +ex
+while :
+do
+  riak ping >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
+  sleep 10
+done

@@ -13,12 +13,8 @@ fi
 export RIAK_CONF=/etc/riak/riak.conf
 export USER_CONF=/etc/riak/user.conf
 export RIAK_ADVANCED_CONF=/etc/riak/advanced.config
-if [[ -x /usr/sbin/riak-admin ]]; then
-  export RIAK_ADMIN=/usr/sbin/riak-admin
-else
-  export RIAK_ADMIN=$RIAK_HOME/bin/riak-admin
-fi
-export SCHEMAS_DIR=/etc/riak/schemas/
+export SCHEMAS_DIR=/usr/lib/riak/share/schema/
+export RIAK_ADMIN="$RIAK admin"
 
 # Set ports for PB and HTTP
 export PB_PORT=${PB_PORT:-8087}
@@ -40,12 +36,7 @@ for s in $PRESTART; do
   . $s
 done
 
-# Start the node and wait until fully up
-# `riak start` command can be configured through env variables (e.g, WAIT_FOR_ERLANG).
-# However, `riak` resets all env variables if the user is different from riak.
-# So let's use su to pass the current environment into `riak` script.
-su riak -c "$RIAK start"
-$RIAK_ADMIN wait-for-service riak_kv
+$RIAK start
 
 # Run all poststart scripts
 POSTSTART=$(find /etc/riak/poststart.d -name *.sh -print | sort)
@@ -69,7 +60,7 @@ trap "$SIGTERM_TRAP_CMD" SIGTERM SIGINT
 set +ex
 while :
 do
-  riak ping >/dev/null 2>&1
+  $RIAK ping >/dev/null 2>&1
   if [ $? -ne 0 ]; then
     exit 1
   fi

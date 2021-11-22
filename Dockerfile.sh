@@ -8,13 +8,17 @@ COPY files/portage/ /etc/portage
 COPY portage/ /usr/portage
 COPY overlays/ /var/lib/layman
 
+ARG riak_version
+ARG riak_version_hash
+
 COPY files/install.sh /
+RUN /install.sh
+
 COPY files/install-riak.sh /
 COPY files/vars.config /
-COPY files/riak.patch /
-COPY files/riak_core.patch /
-COPY files/erlang_otp.patch /
-RUN /install.sh
+COPY files/rebar.config.patch /
+COPY files/rebar.lock.patch /
+COPY files/riak.schema.patch /
 RUN /install-riak.sh
 
 # Install custom hooks
@@ -28,18 +32,20 @@ COPY files/riak-cluster.sh /tmp/portage-root/riak-cluster.sh
 # Riak image
 FROM scratch
 COPY --from=build /tmp/portage-root/ /
-COPY --from=build /usr/local/ssl /usr/local
 
 # Prepare directrories
-RUN mkdir -p /etc/riak/schemas /etc/riak/prestart.d /etc/riak/poststart.d \
-    /usr/lib/riak/ /var/lib/riak /var/log/riak
+RUN mkdir -p /etc/riak/prestart.d /etc/riak/poststart.d \
+    /usr/lib/riak/ /var/lib/riak /var/log/riak /var/run/riak
 
 # Copy riak sources
-COPY --from=build /opt/riak/rel/riak/bin/riak* /usr/sbin/
-COPY --from=build /opt/riak/rel/riak/etc/* /etc/riak/
-COPY --from=build /opt/riak/rel/riak/erts-5.10.3 /usr/lib/riak/erts-5.10.3
-COPY --from=build /opt/riak/rel/riak/lib /usr/lib/riak/lib
-COPY --from=build /opt/riak/rel/riak/releases /usr/lib/riak/releases
+COPY --from=build /opt/riak/_build/deb/rel/riak/lib /usr/lib/riak/lib
+COPY --from=build /opt/riak/_build/deb/rel/riak/share /usr/lib/riak/share
+COPY --from=build /opt/riak/_build/deb/rel/riak/erts-10.7.2.13 /usr/lib/riak/erts-10.7.2.13
+COPY --from=build /opt/riak/_build/deb/rel/riak/releases /usr/lib/riak/releases
+COPY --from=build /opt/riak/_build/deb/rel/riak/bin /usr/lib/riak/bin
+COPY --from=build /opt/riak/_build/deb/rel/riak/etc/* /etc/riak/
+COPY --from=build /opt/riak/_build/deb/rel/riak/data/* /var/lib/riak/data/
+COPY --from=build /opt/riak/_build/deb/rel/riak/usr/bin/* /usr/sbin/
 
 RUN busybox --install
 LABEL com.rbkmoney.${SERVICE_NAME}.parent=null \
@@ -56,18 +62,13 @@ EXPOSE 8098
 RUN touch /etc/group /etc/passwd
 RUN adduser -u 0 -g wheel -D -h /root root; \
     adduser -u 102 -g riak -D -h /var/lib/riak riak; \
-    chown -R riak:riak /var/lib/riak /var/log/riak
+    chown -R riak:riak /var/lib/riak /var/log/riak /var/run/riak
 
 # Expose volumes for data and logs
 VOLUME /var/log/riak
 VOLUME /var/lib/riak
 
-# Prepare for bootstrapping schemas
-RUN mkdir -p /etc/riak/schemas
-
-ENV RIAK_VERSION 2.9.1
 ENV RIAK_HOME /usr/lib/riak
-ENV RIAK_FLAVOR KV
 
 WORKDIR /var/lib/riak
 RUN chmod a+x /riak-cluster.sh

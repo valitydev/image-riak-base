@@ -1,8 +1,11 @@
 UTILS_PATH := build-utils
 SERVICE_NAME := riak-base
-BUILD_IMAGE_TAG := 917afcdd0c0a07bf4155d597bbba72e962e1a34a
-PORTAGE_REF := 366f3e8f548f03ed8c8f43b84e06000912f8a8f9
-OVERLAYS_RBKMONEY_REF := 8a54bfff180677ef2afc0db91a4e6b4ea10804e3
+BUILD_IMAGE_TAG := 25c031edd46040a8745334570940a0f0b2154c5c
+PORTAGE_REF := d9257374c6dc66cf541887f5a3273c4459a0c844
+OVERLAYS_RBKMONEY_REF := 6740592c44b3312f492fbd765c7338b5c4347ff0
+
+RIAK_VERSION := 3.0.9
+RIAK_VERSION_HASH := d5d397f1694ad098081fdc466fc58d3f4c58345e
 
 .PHONY: $(SERVICE_NAME) push submodules repos
 $(SERVICE_NAME): .state
@@ -42,7 +45,9 @@ Dockerfile: Dockerfile.sh
 	./Dockerfile.sh > Dockerfile
 
 .state: Dockerfile $(REPOS)
-	docker build -t $(SERVICE_IMAGE_NAME):$(TAG) .
+	docker build --build-arg riak_version=$(RIAK_VERSION) \
+	--build-arg riak_version_hash=$(RIAK_VERSION_HASH) \
+	-t $(SERVICE_IMAGE_NAME):$(TAG) .
 	echo $(TAG) > $@
 
 test:
